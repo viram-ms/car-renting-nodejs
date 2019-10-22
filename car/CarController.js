@@ -82,7 +82,7 @@ router.post('/singlebill', function(req,res){
 })
 
 router.post('/history', function(req,res){
-    var sql = "Select Vehicle.Name , Vehicle.VehicleNo, Vehicle.Ftype, Vehicle.Price, Vehicle.Location, Vehicle.Status, Bill.VehicleId, Bill.BillPaid, Bill.BillId from Bill Inner Join Vehicle on Vehicle.VehicleId = Bill.VehicleId where UserID = '" + req.body.UserId + "'";
+    var sql = "Select Vehicle.Name , Vehicle.VehicleNo, Vehicle.Ftype, Vehicle.Price, Vehicle.Location, Vehicle.Status, Bill.StartDate, Bill.EndDate, Bill.Amount, Bill.Gst, Bill.VehicleId, Bill.BillPaid, Bill.BillId from Bill Inner Join Vehicle on Vehicle.VehicleId = Bill.VehicleId where BillPaid='0' and UserID = '" + req.body.UserId + "'";
     console.log(sql);
     connection.query(sql, function(error , result ){
         if(error){
@@ -92,6 +92,21 @@ router.post('/history', function(req,res){
         }
     })
 });
+
+
+router.post('/transactions', function(req,res){
+   var sql = "Select Bill.BillId, Bill.Amount, Bill.Gst, Bill.StartDate, Bill.EndDate, Bill.VehicleId, Vehicle.Name , Vehicle.VehicleNo, Vehicle.Ftype, Vehicle.Price  from Bill join Vehicle on Vehicle.VehicleId = Bill.VehicleId where BillPaid = '1' and UserId = '" + req.body.UserId + "'";
+   console.log(sql);
+   connection.query(sql, function(error, result) {
+       if(error){
+           res.status(500).send({message: error})
+       } else {
+           res.status(200).send({message: result});
+       }
+   })
+});
+
+
 
 router.post('/return', function(req,res){
     var sql = "Update bill set BillPaid = '1' where BillId = '" + req.body.BillId + "'";
